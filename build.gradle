@@ -7,24 +7,29 @@ compileTestJava.options.encoding = "UTF-8"
 
 sourceSets.main.java.srcDirs = ["src"]
 
-repositories{
+repositories {
     mavenCentral()
-    maven{ url 'https://www.jitpack.io' }
+    maven { url 'https://www.jitpack.io' }
 }
 
-ext{
+ext {
     //the build number that this plugin is made for
     arcVersion = 'v137'
 }
 
-dependencies{
-    compileOnly "com.github.Anuken.Arc:arc-core:$arcVersion"
-    compileOnly "com.github.Anuken.Arc:arcnet:$arcVersion"
+dependencies {
+    implementation "com.github.Anuken.Arc:arc-core:$arcVersion"
+    implementation "com.github.Anuken.Arc:arcnet:$arcVersion"
+    implementation "com.github.Anuken.Mindustry:core:$arcVersion" // TODO: add custom PacketSerializer
 }
 
-jar{
+jar {
     archiveFileName = "${project.archivesBaseName}.jar"
-    from{
+    from {
         configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
+    }
+
+    manifest {
+        attributes('Main-Class': 'ldoa.Main')
     }
 }

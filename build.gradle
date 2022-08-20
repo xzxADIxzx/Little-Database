@@ -20,6 +20,7 @@ ext {
 dependencies {
     implementation "com.github.Anuken.Arc:arc-core:$arcVersion"
     implementation "com.github.Anuken.Arc:arcnet:$arcVersion"
+    implementation "com.github.Anuken.Arc:backend-headless:$arcVersion"
     implementation "com.github.Anuken.Mindustry:core:$arcVersion" // TODO: add custom PacketSerializer
 }
 

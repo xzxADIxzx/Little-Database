@@ -1,9 +1,10 @@
 package ldoa;
 
-import java.io.IOException;
-
+import arc.backend.headless.HeadlessApplication;
 import arc.util.Log;
 import arc.util.Threads;
+
+import java.io.IOException; 
 
 public class Main {
 
@@ -21,6 +22,8 @@ public class Main {
             clientThread = Threads.daemon("Net Client", client::run);
 
             client.connect(5000, "127.0.0.1", 6567, 6567);
-        } catch (IOException error) { Log.err("Could not to create server/client", error); }
+
+            new HeadlessApplication(new Control, Log::err);
+        } catch (IOException error) { Log.err("Could not to initialize Little Database application", error); }
     }
 }

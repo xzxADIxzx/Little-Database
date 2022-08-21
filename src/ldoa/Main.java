@@ -21,8 +21,8 @@ public class Main {
         };
 
         try {
-            new HeadlessApplication(new Control(args), Log::err);
             Log.info("Little Database application loaded. Type @ for help.", "help");
+            new HeadlessApplication(new Control(args), Log::err);
         } catch (Throwable error) {
             Log.err("Could not to load Little Database application", error);
         }

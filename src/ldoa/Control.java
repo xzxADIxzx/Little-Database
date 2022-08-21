@@ -31,6 +31,12 @@ public class Control implements ApplicationListener {
     }
 
     private void registerCommands() {
+        handler.register("help", "Display the command list.", args -> {
+            Log.info("Commands:");
+            handler.getCommandList().each(command -> Log.info("  &b&lb @&lc&fi@&fr - &lw@",
+                    command.text, command.paramText.isEmpty() ? "" : " " + command.paramText, command.description));
+        });
+
         handler.register("host", "<port> <public/private>", "Host a new little database.", args -> {
             try {
                 server.bind(6567, 6567);

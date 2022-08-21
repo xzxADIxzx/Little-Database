@@ -6,6 +6,11 @@ import arc.util.CommandHandler.CommandResponse;
 import arc.util.CommandHandler.ResponseType;
 import arc.util.Log;
 import arc.util.Strings;
+import arc.util.Threads;
+
+import static ldoa.Main.*;
+
+import java.io.IOException;
 
 public class Control implements ApplicationListener {
 
@@ -27,11 +32,21 @@ public class Control implements ApplicationListener {
 
     private void registerCommands() {
         handler.register("host", "<port> <public/private>", "Host a new little database.", args -> {
-
+            try {
+                server.bind(6567, 6567);
+                thread = Threads.daemon("Net Server", server::run);
+            } catch (IOException error) {
+                Log.err("Could not to host a little database", error);
+            }
         });
 
         handler.register("join", "<ip> <port>", "Join to a little database.", args -> {
-
+            try {
+                thread = Threads.daemon("Net Client", client::run);
+                client.connect(5000, "127.0.0.1", 6567, 6567);
+            } catch (IOException error) {
+                Log.err("Could not to join to a little database", error);
+            }
         });
     }
 

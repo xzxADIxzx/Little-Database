@@ -33,7 +33,7 @@ public class Main {
 
             client.connect(5000, "127.0.0.1", 6567, 6567);
 
-            new HeadlessApplication(new Control(), Log::err);
+            new HeadlessApplication(new Control(args), Log::err);
             Log.info("Little Database application loaded. Type @ for help.", "help");
         } catch (IOException error) {
             Log.err("Could not to load Little Database application", error);

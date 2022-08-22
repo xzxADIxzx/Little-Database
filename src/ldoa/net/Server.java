@@ -1,4 +1,4 @@
-package ldoa;
+package ldoa.net;
 
 import mindustry.net.ArcNetProvider;
 

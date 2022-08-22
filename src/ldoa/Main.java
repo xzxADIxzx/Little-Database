@@ -2,6 +2,8 @@ package ldoa;
 
 import arc.backend.headless.HeadlessApplication;
 import arc.util.Log;
+import ldoa.net.Client;
+import ldoa.net.Server;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

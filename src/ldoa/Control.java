@@ -8,6 +8,7 @@ import arc.util.Log;
 import arc.util.Strings;
 import arc.util.Threads;
 
+import static arc.Core.*;
 import static ldoa.Main.*;
 
 import java.io.IOException;
@@ -53,6 +54,25 @@ public class Control implements ApplicationListener {
             } catch (IOException error) {
                 Log.err("Could not to join to a little database", error);
             }
+        });
+
+        handler.register("stop", "Stop hosting the server or disconnect the client.", arg -> {
+            if (thread == null) Log.err("No server/client launched yet.");
+            else {
+                server.stop();
+                client.stop();
+                thread = null;
+                Log.info("Stopped server.");
+            }
+        });
+
+        handler.register("exit", "Exit the Little Database application.", arg -> {
+            Log.info("Shutting down Little Database application.");
+            try {
+                server.dispose();
+                client.dispose();
+            } catch (IOException ignored) {}
+            app.exit();
         });
     }
 

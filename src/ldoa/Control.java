@@ -12,6 +12,7 @@ import static arc.Core.*;
 import static ldoa.Main.*;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 public class Control implements ApplicationListener {
 
@@ -29,6 +30,12 @@ public class Control implements ApplicationListener {
         registerCommands();
         for (String command : startCommands)
             handleCommand(command);
+
+        Threads.daemon("Application Control", () -> {
+            try (Scanner scanner = new Scanner(System.in)) {
+                while (scanner.hasNext()) handleCommand(scanner.nextLine());
+            }
+        });
     }
 
     private void registerCommands() {

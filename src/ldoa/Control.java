@@ -46,18 +46,22 @@ public class Control implements ApplicationListener {
         });
 
         handler.register("host", "<port> <public/private>", "Host a new little database.", args -> {
-            try {
+            if (thread != null) Log.err("The server/client is already launched.");
+            else try {
                 server.bind(6567, 6567);
                 thread = Threads.daemon("Net Server", server::run);
+                Log.info("Server launched.");
             } catch (IOException error) {
                 Log.err("Could not to host a little database", error);
             }
         });
 
         handler.register("join", "<ip> <port>", "Join to a little database.", args -> {
-            try {
+            if (thread != null) Log.err("The server/client is already launched.");
+            else try {
                 thread = Threads.daemon("Net Client", client::run);
                 client.connect(5000, "127.0.0.1", 6567, 6567);
+                Log.info("Client launched.");
             } catch (IOException error) {
                 Log.err("Could not to join to a little database", error);
             }
@@ -76,7 +80,9 @@ public class Control implements ApplicationListener {
         handler.register("exit", "Exit the Little Database application.", arg -> {
             Log.info("Shutting down Little Database application.");
             try {
+                server.stop();
                 server.dispose();
+                client.stop();
                 client.dispose();
             } catch (IOException ignored) {}
             app.exit();

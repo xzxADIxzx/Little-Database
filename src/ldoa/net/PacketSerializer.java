@@ -11,8 +11,11 @@ public class PacketSerializer implements NetSerializer {
     @Override
     public void write(ByteBuffer buffer, Object object) {
         if(object instanceof FrameworkMessage message){
-            buffer.put((byte)1);
+            buffer.put((byte) 1);
             writeFramework(buffer, message);
+        } else {
+            buffer.put((byte) 2);
+            writeString(buffer, (String) object);
         }
     }
 
@@ -20,7 +23,8 @@ public class PacketSerializer implements NetSerializer {
     public Object read(ByteBuffer buffer) {
         byte id = buffer.get();
         if (id == 1) return readFramework(buffer);
-        else return null; // temp
+        if (id == 2) return readString(buffer);
+        return null; // unknown
     }
 
     public void writeFramework(ByteBuffer buffer, FrameworkMessage message) {
@@ -42,5 +46,19 @@ public class PacketSerializer implements NetSerializer {
             return reg;
         } else if (id == 3) return FrameworkMessage.keepAlive;
         else throw new RuntimeException("Unknown framework message!"); // how is that even possible?
+    }
+
+    public static void writeString(ByteBuffer buffer, String message) {
+        buffer.putInt(message.length());
+        for (char chara : message.toCharArray())
+            buffer.putChar(chara);
+    }
+
+    public static String readString(ByteBuffer buffer) {
+        int length = buffer.getInt();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < length; i++)
+            builder.append(buffer.getChar());
+        return builder.toString();
     }
 }

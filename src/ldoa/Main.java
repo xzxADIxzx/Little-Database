@@ -1,6 +1,7 @@
 package ldoa;
 
 import arc.backend.headless.HeadlessApplication;
+import arc.net.ArcNet;
 import arc.util.Log;
 import ldoa.net.Client;
 import ldoa.net.Server;
@@ -17,6 +18,7 @@ public class Main {
     public static final DateTimeFormatter dateTime = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     public static void main(String[] args) {
+        ArcNet.errorHandler = Log::err;
         Log.logger = (level, text) -> {
             String result = Log.format("&lk&fb[" + dateTime.format(LocalDateTime.now()) + "]&fr " + tags[level.ordinal()] + " " + text + "&fr");
             System.out.println(result);

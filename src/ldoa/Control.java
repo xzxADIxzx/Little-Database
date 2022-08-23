@@ -67,7 +67,7 @@ public class Control implements ApplicationListener {
             }
         });
 
-        handler.register("stop", "Stop hosting the server or disconnect the client.", arg -> {
+        handler.register("stop", "Stop hosting the server or disconnect the client.", args -> {
             if (thread == null) Log.err("No server/client launched yet.");
             else {
                 server.stop();
@@ -77,7 +77,7 @@ public class Control implements ApplicationListener {
             }
         });
 
-        handler.register("exit", "Exit the Little Database application.", arg -> {
+        handler.register("exit", "Exit the Little Database application.", args -> {
             Log.info("Shutting down Little Database application.");
             try {
                 server.stop();
@@ -87,6 +87,8 @@ public class Control implements ApplicationListener {
             } catch (IOException ignored) {}
             app.exit();
         });
+
+        handler.register("backup", "Take a little backup of a little database.", args -> {});
     }
 
     private void handleCommand(String command) {

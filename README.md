@@ -8,10 +8,11 @@ Each LDR starts with the name of the file to work with, then a cyclic constructi
 ### Action and Parameters
 | Action | Parameters | Description                            |
 |--------|------------|----------------------------------------|
-|get     |key         |Returns a value by a key in the json.   |
+|get     |key         |Returns a value by a key in json.       |
 |put     |key value   |Puts a value to json by a key.          |
+|remove  |key         |Remove a value from json by a key.      |
 |contains|key         |Returns whether the json contains a key.|
-|each    |            |Iterate over all values in the json.    |
+|each    |            |Iterate over all values in json.        |
 |task    |key interval|Runs a task at an interval in seconds.  |
 |stop    |key         |Stop a task by a key.                   |
 

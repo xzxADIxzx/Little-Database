@@ -48,21 +48,30 @@ public class Control implements ApplicationListener {
         handler.register("host", "<port> <public/private> [login] [password]", "Host a new little database.", args -> {
             if (thread != null) Log.err("The server/client is already launched.");
             else try {
+                boolean isLAN = args[1].equals("private");
+                handleLoginPassword(args);
+                    
                 server.bind(6567, 6567);
                 thread = Threads.daemon("Net Server", server::run);
                 Log.info("Server launched.");
-                if (args.length > 2) Log.warn("Login and password are ignored as the server is private.");
+
+                if (args.length > 2 && isLAN) Log.warn("Login and password are ignored as the server is private.");
             } catch (IOException error) {
                 Log.err("Could not to host a little database", error);
             }
         });
 
-        handler.register("join", "<ip> <port>", "Join to a little database.", args -> {
+        handler.register("join", "<ip> <port> [login] [password]", "Join to a little database.", args -> {
             if (thread != null) Log.err("The server/client is already launched.");
             else try {
+                // join also has 4 arguments so this will work
+                handleLoginPassword(args);
+
                 thread = Threads.daemon("Net Client", client::run);
                 client.connect(5000, "127.0.0.1", 6567, 6567);
                 Log.info("Client launched.");
+
+                client.authorize();
             } catch (IOException error) {
                 Log.err("Could not to join to a little database", error);
             }
@@ -100,5 +109,20 @@ public class Control implements ApplicationListener {
             Log.err("Command not found. Did you mean @?", closest);
         } else if (response.type != ResponseType.noCommand && response.type != ResponseType.valid)
             Log.err("Too @ command arguments.", response.type == ResponseType.fewArguments ? "few" : "many");
+    }
+
+    private void handleLoginPassword(String[] args) {
+        switch (args.length) {
+            case 2 -> login = password = null;
+            case 3 -> {
+                login = args[2];
+                password = "DoYouEvenRealizeHowStupidThisIs?";
+                Log.warn("Password not found! @ will be used by default.", password);
+            }
+            case 4 -> {
+                login = args[2];
+                password = args[3];
+            }
+        }
     }
 }

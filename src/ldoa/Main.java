@@ -17,6 +17,9 @@ public class Main {
     public static final String[] tags = { "&lc&fb[D]&fr", "&lb&fb[I]&fr", "&ly&fb[W]&fr", "&lr&fb[E]", "" };
     public static final DateTimeFormatter dateTime = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
+    public static String login;
+    public static String password;
+
     public static void main(String[] args) {
         ArcNet.errorHandler = Log::err;
         Log.logger = (level, text) -> {

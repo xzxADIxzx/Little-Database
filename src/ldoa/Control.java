@@ -45,12 +45,13 @@ public class Control implements ApplicationListener {
                     command.text, command.paramText.isEmpty() ? "" : " " + command.paramText, command.description));
         });
 
-        handler.register("host", "<port> <public/private>", "Host a new little database.", args -> {
+        handler.register("host", "<port> <public/private> [login] [password]", "Host a new little database.", args -> {
             if (thread != null) Log.err("The server/client is already launched.");
             else try {
                 server.bind(6567, 6567);
                 thread = Threads.daemon("Net Server", server::run);
                 Log.info("Server launched.");
+                if (args.length > 2) Log.warn("Login and password are ignored as the server is private.");
             } catch (IOException error) {
                 Log.err("Could not to host a little database", error);
             }

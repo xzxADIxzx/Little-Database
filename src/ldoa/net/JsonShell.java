@@ -1,11 +1,15 @@
 package ldoa.net;
 
 import arc.func.Cons;
+import arc.util.Time;
 
 import static ldoa.Main.*;
 
 /** Represents json but does not contain any data, everything is obtained through requests to the database server. */
-public class JsonShell { // TODO handler error response
+public class JsonShell { // TODO handler success/error response
+
+    /** Maximum time to wait for server response. */
+    public static final long maxWaitDuration = 5000l; // 5 sec
 
     public String path;
     public Object response;
@@ -64,6 +68,11 @@ public class JsonShell { // TODO handler error response
 
     private void waitUntilResponse() {
         response = null;
-        while (response == null) break; // TODO wait until response and break if out of time
+        long mark = Time.millis();
+        while (response == null) {
+            if (Time.timeSinceMillis(mark) > maxWaitDuration)
+                throw new RuntimeException("Timeout waiting for server response.");
+            break; // temp
+        }
     }
 }

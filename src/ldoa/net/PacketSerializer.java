@@ -29,7 +29,7 @@ public class PacketSerializer implements NetSerializer {
         if (id == 1) return readFramework(buffer);
         if (id == 2) return readResponse(buffer);
         if (id == 3) return readString(buffer);
-        return null; // unknown
+        throw new RuntimeException("Unknown message!"); // what?
     }
 
     public void writeFramework(ByteBuffer buffer, FrameworkMessage message) {
@@ -54,12 +54,12 @@ public class PacketSerializer implements NetSerializer {
     }
 
     public void writeResponse(ByteBuffer buffer, ResponseMessage message) {
-        if (message instanceof RequestSuccess res) {
-            buffer.put((byte) 1).putInt(res.requestID);
-            writeString(buffer, res.response);
-        } else if (message instanceof RequestException res) {
-            buffer.put((byte) 2).putInt(res.requestID);
-            writeString(buffer, res.response);
+        if (message instanceof RequestSuccess req) {
+            buffer.put((byte) 1).putInt(req.requestID);
+            writeString(buffer, req.response);
+        } else if (message instanceof RequestException req) {
+            buffer.put((byte) 2).putInt(req.requestID);
+            writeString(buffer, req.response);
         }
     }
 

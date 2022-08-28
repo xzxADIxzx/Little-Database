@@ -17,6 +17,7 @@ public class Client extends arc.net.Client {
     }
 
     public void authorize() {
+        if (login == null || password == null) return;
         send(login + " " + password, res -> {
             if (res instanceof RequestSuccess req) Log.info("Successfully logged with login: @ and password: @", login, password);
             else if (res instanceof RequestException req) Log.err("Could not to login: @", req.response);

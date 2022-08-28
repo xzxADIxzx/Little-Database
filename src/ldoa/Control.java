@@ -83,7 +83,7 @@ public class Control implements ApplicationListener {
                 server.stop();
                 client.stop();
                 thread = null;
-                Log.info("Stopped server.");
+                Log.info("Stopped server/client.");
             }
         });
 

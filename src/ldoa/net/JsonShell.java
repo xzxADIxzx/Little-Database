@@ -2,6 +2,7 @@ package ldoa.net;
 
 import arc.func.Cons;
 import arc.util.Time;
+import ldoa.net.ResponseMessage.*;
 
 import static ldoa.Main.*;
 
@@ -59,11 +60,18 @@ public class JsonShell { // TODO handler success/error response
         client.send(path + " remove " + key, response);
     }
 
-    /**Returns whether the json, which is represented by this {@link JsonShell}, contains a key. */
+    /** Returns whether the json, which is represented by this {@link JsonShell}, contains a key. */
     public boolean contains(String key) {
-        client.send(path + " contains " + key, res -> response = res);
+        containsAsync(key, res -> response = res);
         waitUntilResponse();
-        return (boolean) response;
+        if (response instanceof RequestSuccess) return Boolean.valueOf((String) response);
+        if (response instanceof RequestException) throw new RuntimeException("Exception occurred while processing your request: " + response);
+        throw new RuntimeException("Unknown response message!"); // now it's rly impossible as unknown messages are handled by packet serializer
+    }
+
+    /** Works like {@link #contains(String key)} but doesn't stop the thread. */
+    public void containsAsync(String key, Cons<Object> response) {
+        client.send(path + " contains " + key, response);
     }
 
     private void waitUntilResponse() {

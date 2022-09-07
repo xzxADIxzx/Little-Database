@@ -1,11 +1,11 @@
-apply plugin: "java"
+apply plugin: 'java'
 
 version '1.0'
 
-compileJava.options.encoding = "UTF-8"
-compileTestJava.options.encoding = "UTF-8"
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
 
-sourceSets.main.java.srcDirs = ["src"]
+sourceSets.main.java.srcDirs = ['src']
 
 repositories {
     mavenCentral()
@@ -13,14 +13,15 @@ repositories {
 }
 
 ext {
-    //the build number that this plugin is made for
-    arcVersion = 'v137'
+    arcVersion = 'v138' // the build number that this plugin is made for
+    jsonVersion = '2a7c5520fd'
 }
 
 dependencies {
     implementation "com.github.Anuken.Arc:arc-core:$arcVersion"
     implementation "com.github.Anuken.Arc:arcnet:$arcVersion"
     implementation "com.github.Anuken.Arc:backend-headless:$arcVersion"
+    implementation "com.github.xzxADIxzx.Useful-Stuffs:json:$jsonVersion"
 }
 
 jar {

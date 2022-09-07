@@ -8,6 +8,9 @@ import static ldoa.Main.*;
 
 public class Client extends arc.net.Client {
 
+    /** Represents folder and exists to work with database files. */
+    public final JsonShell root = new JsonShell("root");
+
     public Client() {
         super(8192, 8192, new PacketSerializer());
     }
@@ -24,4 +27,20 @@ public class Client extends arc.net.Client {
             else throw new RuntimeException("Unknown response!");
         });
     }
+
+    // region file managment
+
+    public void create(String name, Cons<Object> response) {
+        root.putAsync(name, "{}", response);
+    }
+
+    public JsonShell get(String name) {
+        return new JsonShell(name);
+    }
+
+    public void remove(String name, Cons<Object> response) {
+        root.removeAsync(name, response);
+    }
+
+    // endregion
 }

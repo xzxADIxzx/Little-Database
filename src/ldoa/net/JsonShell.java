@@ -66,7 +66,7 @@ public class JsonShell { // TODO handler success/error response
         waitUntilResponse();
         if (response instanceof RequestSuccess) return Boolean.valueOf((String) response);
         if (response instanceof RequestException) throw new RuntimeException("Exception occurred while processing your request: " + response);
-        throw new RuntimeException("Unknown response message!"); // now it's rly impossible as unknown messages are handled by packet serializer
+        throw new RuntimeException("Unknown response!"); // now it's rly impossible as unknown messages are handled by packet serializer
     }
 
     /** Works like {@link #contains(String key)} but doesn't stop the thread. */

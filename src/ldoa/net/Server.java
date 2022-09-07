@@ -13,6 +13,8 @@ import static ldoa.Main.*;
 
 public class Server extends arc.net.Server implements NetListener {
 
+    public Database database = new Database();
+
     public Seq<Connection> authorized = new Seq<>(); // TODO ConnectionMap instead of this ObjectMaps and Seq
     public ObjectMap<Connection, Seq<String>> tasks = new ObjectMap<>();
     public ObjectMap<Connection, String> reasons = new ObjectMap<>();
@@ -23,15 +25,16 @@ public class Server extends arc.net.Server implements NetListener {
     }
 
     @Override
+    public void run() {
+        database.load("database");
+        super.run(); // called after the database as it stops the thread
+    }
+
+    @Override
     public void stop() {
         super.stop();
         authorized.clear();
         tasks.clear();
-    }
-
-    public void execute(Connection connection, String request) {
-        if (!authorized.contains(connection)) return;
-        // TODO maaany things
     }
 
     public void connected(Connection connection) {
@@ -54,8 +57,9 @@ public class Server extends arc.net.Server implements NetListener {
     public void received(Connection connection, Object object) {
         if (object instanceof String message) {
             String[] args = message.split(" ");
-            if (args.length != 2) execute(connection, message);
-            else {
+            if (args.length != 2) {
+                if (authorized.contains(connection)) database.execute(connection, message);
+            } else {
                 if (login == null || password == null) return; // it makes no sense to check the login and password if the database is not locked
                 if (args[0].equals(login) && args[1].equals(password)) {
                     Log.info("Received correct login and password from connection @.", connection.getID());

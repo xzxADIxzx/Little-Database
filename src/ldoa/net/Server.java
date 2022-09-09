@@ -33,6 +33,8 @@ public class Server extends arc.net.Server implements NetListener {
     @Override
     public void stop() {
         super.stop();
+        database.save("database");
+
         authorized.clear();
         tasks.clear();
     }

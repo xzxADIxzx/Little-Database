@@ -12,6 +12,7 @@ import static arc.Core.*;
 import static ldoa.Main.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Control implements ApplicationListener {
@@ -98,7 +99,10 @@ public class Control implements ApplicationListener {
             app.exit();
         });
 
-        handler.register("backup", "Take a little backup of a little database.", args -> {});
+        handler.register("backup", "Take a little backup of a little database.", args -> {
+            if (!thread.getName().equals("Net Server")) Log.err("No server launched.");
+            else server.database.save("backup " + dateTime.format(LocalDateTime.now()));
+        });
     }
 
     private void handleCommand(String command) {

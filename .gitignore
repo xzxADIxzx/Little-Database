@@ -6,6 +6,9 @@ bin/*
 lib/*
 build/*
 
+database/*
+backup */*
+
 *.classpath
 *.project
 *.bat

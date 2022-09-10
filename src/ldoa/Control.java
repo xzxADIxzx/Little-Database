@@ -109,7 +109,7 @@ public class Control implements ApplicationListener {
         });
 
         handler.register("backup", "Take a little backup of a little database.", args -> {
-            if (!thread.getName().equals("Net Server")) Log.err("No server launched.");
+            if (thread == null || !thread.getName().equals("Net Server")) Log.err("No server launched.");
             else server.database.save("backup " + dateTime.format(LocalDateTime.now()));
         });
     }

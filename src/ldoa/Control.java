@@ -4,6 +4,7 @@ import arc.ApplicationListener;
 import arc.util.CommandHandler;
 import arc.util.CommandHandler.CommandResponse;
 import arc.util.CommandHandler.ResponseType;
+import ldoa.net.ResponseMessage.*;
 import arc.util.Log;
 import arc.util.Strings;
 import arc.util.Threads;
@@ -102,8 +103,8 @@ public class Control implements ApplicationListener {
         handler.register("send", "<request...>", "Send a LDR or execute it locally.", args -> {
             if (thread == null) Log.err("No server/client launched yet.");
             else {
-                if (thread.getName().equals("Net Client")) client.send(args[0], Log::info);
-                else Log.info(server.database.execute(null, args[0]));
+                if (thread.getName().equals("Net Client")) client.send(args[0], this::handleResponse);
+                else handleResponse(server.database.execute(null, args[0]));
             }
         });
 
@@ -136,5 +137,10 @@ public class Control implements ApplicationListener {
                 password = args[3];
             }
         }
+    }
+
+    private void handleResponse(Object response) {
+        if (response instanceof RequestSuccess req) Log.info(req.response);
+        if (response instanceof RequestException req) Log.err(req.response);
     }
 }

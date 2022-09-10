@@ -1,6 +1,9 @@
 package ldoa;
 
 import arc.ApplicationListener;
+import arc.net.Connection;
+import arc.net.DcReason;
+import arc.net.NetListener;
 import arc.util.CommandHandler;
 import arc.util.CommandHandler.CommandResponse;
 import arc.util.CommandHandler.ResponseType;
@@ -32,6 +35,16 @@ public class Control implements ApplicationListener {
         registerCommands();
         for (String command : startCommands)
             handleCommand(command);
+
+        client.addListener(new NetListener() { // located here because Client can be used in third party plugins or libraries with own logging
+            public void connected(Connection connection) {
+                Log.info("Successfully connected to the server.");
+            }
+        
+            public void disconnected(Connection connection, DcReason reason) {
+                Log.info("Connection was closed.");
+            }
+        });
 
         Threads.daemon("Application Control", () -> {
             try (Scanner scanner = new Scanner(System.in)) {

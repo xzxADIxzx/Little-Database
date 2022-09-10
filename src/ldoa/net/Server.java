@@ -54,6 +54,7 @@ public class Server extends arc.net.Server implements NetListener {
     public void disconnected(Connection connection, DcReason reason) {
         authorized.remove(connection);
         tasks.remove(connection);
+        ResponseMessage.ids.remove(connection.getID());
         Log.info("Connection @ was closed@", connection.getID(), reasons.containsKey(connection) ? ": " + reasons.get(connection) : ".");
     }
 

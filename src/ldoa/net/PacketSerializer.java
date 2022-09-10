@@ -45,12 +45,12 @@ public class PacketSerializer implements NetSerializer {
             return new RegisterTCP() {{
                 connectionID = buffer.getInt();
             }};
-        else if (id == 2)
+        if (id == 2)
             return new RegisterUDP() {{
                 connectionID = buffer.getInt();
             }};
-        else if (id == 3) return FrameworkMessage.keepAlive;
-        else throw new RuntimeException("Unknown framework message!"); // how is that even possible?
+        if (id == 3) return FrameworkMessage.keepAlive;
+        throw new RuntimeException("Unknown framework message!"); // how is that even possible?
     }
 
     public void writeResponse(ByteBuffer buffer, ResponseMessage message) {
@@ -70,12 +70,12 @@ public class PacketSerializer implements NetSerializer {
                 requestID = buffer.getInt();
                 response = readString(buffer);
             }};
-        else if (id == 2)
+        if (id == 2)
             return new RequestException() {{
                 requestID = buffer.getInt();
                 response = readString(buffer);
             }};
-        else throw new RuntimeException("Unknown response message!"); // impossible?
+        throw new RuntimeException("Unknown response message!"); // impossible?
     }
 
     public static void writeString(ByteBuffer buffer, String message) {

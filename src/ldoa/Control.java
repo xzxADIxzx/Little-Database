@@ -99,6 +99,14 @@ public class Control implements ApplicationListener {
             app.exit();
         });
 
+        handler.register("send", "<request...>", "Send a LDR or execute it locally.", args -> {
+            if (thread == null) Log.err("No server/client launched yet.");
+            else {
+                if (thread.getName().equals("Net Client")) client.send(args[0], Log::info);
+                else Log.info(server.database.execute(null, args[0]));
+            }
+        });
+
         handler.register("backup", "Take a little backup of a little database.", args -> {
             if (!thread.getName().equals("Net Server")) Log.err("No server launched.");
             else server.database.save("backup " + dateTime.format(LocalDateTime.now()));

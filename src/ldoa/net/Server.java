@@ -58,12 +58,11 @@ public class Server extends arc.net.Server implements NetListener {
     }
 
     public void received(Connection connection, Object object) {
-        if (object instanceof String message) {
-            String[] args = message.split(" ");
-            if (args.length != 2) {
-                if (authorized.contains(connection)) database.execute(connection, message);
-            } else {
+        if (object instanceof String message) { // TODO ConnectionMap.authorized will return true if login is null
+            if (authorized.contains(connection) || login == null || password == null) connection.sendTCP(database.execute(connection, message));
+            else {
                 if (login == null || password == null) return; // it makes no sense to check the login and password if the database is not locked
+                String[] args = message.split(" ");
                 if (args[0].equals(login) && args[1].equals(password)) {
                     Log.info("Received correct login and password from connection @.", connection.getID());
                     authorized.add(connection);

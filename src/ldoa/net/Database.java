@@ -30,6 +30,7 @@ public class Database {
     }
 
     public void save(String to) {
+        if (jsons.isEmpty()) return;
         Fi root = files.local(to);
 
         if (root.exists()) {
@@ -41,7 +42,6 @@ public class Database {
     }
 
     public Object execute(Connection connection, String request) {
-        Log.info(request);
         if (context == requestComplete) { // method called from outside
             String[] file = request.split(" ", 2);
             context = jsons.get(file[0]); // ldr start with filename

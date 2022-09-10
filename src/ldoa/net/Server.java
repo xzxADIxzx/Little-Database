@@ -35,6 +35,7 @@ public class Server extends arc.net.Server implements NetListener {
         super.stop();
         database.save("database");
 
+        database.jsons.clear();
         authorized.clear();
         tasks.clear();
     }

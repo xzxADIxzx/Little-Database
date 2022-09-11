@@ -43,6 +43,8 @@ public class Control implements ApplicationListener {
         
             public void disconnected(Connection connection, DcReason reason) {
                 Log.info("Connection was closed.");
+                client.stop();
+                thread = null;
             }
         });
 

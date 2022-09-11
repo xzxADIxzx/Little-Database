@@ -65,6 +65,5 @@ public class Client extends arc.net.Client implements NetListener {
 
     public void received(Connection connection, Object object) {
         if (object instanceof ResponseMessage res) responses.remove(res.requestID).get(res);
-        if (object instanceof ResponseMessage res) Log.info(res.requestID);
     }
 }

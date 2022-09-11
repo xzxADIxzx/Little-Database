@@ -53,16 +53,28 @@ public class Database {
             } finally { context = requestComplete; }
         } else {
             String[] command = request.split(" ", 2);
-            switch (command[0]) {
+            if (command.length == 1) return new RequestException(connection, "Too few arguments!");
+
+            switch (command[0]) { // Java gods will punish me for this
                 case "get" -> {
-                    if (command.length == 1) return new RequestException(connection, "Too few arguments!");
                     if (context instanceof Json json) {
                         String[] args = command[1].split(" ", 2);
                         context = json.get(args[0]);
 
-                        if (args.length == 1) return new RequestSuccess(connection,context == null ? null : context.toString());
+                        if (args.length == 1) return new RequestSuccess(connection, context == null ? null : context.toString());
                         else return execute(connection, args[1]);
-                    } else return new RequestException(connection,"Can not get value from non-json object!");
+                    } else return new RequestException(connection, "Can not get value from non-json object!");
+                }
+                case "put" -> {
+                    if (context instanceof Json json) {
+                        String[] args = command[1].split(" ", 2);
+
+                        if (args.length == 1) return new RequestException(connection, "Too few arguments!");
+                        else {
+                            json.put(args[0], args[1]); // TODO parse value type through Json
+                            return new RequestSuccess(connection, args[1]);
+                        }
+                    } else return new RequestException(connection, "Can not put value to non-json object!");
                 }
                 default -> {
                     return new RequestException(connection, "Invalid LDR!");

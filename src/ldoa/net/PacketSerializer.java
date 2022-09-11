@@ -79,6 +79,7 @@ public class PacketSerializer implements NetSerializer {
     }
 
     public static void writeString(ByteBuffer buffer, String message) {
+        if (message == null) message = "null";
         buffer.putInt(message.length());
         for (char chara : message.toCharArray())
             buffer.putChar(chara);

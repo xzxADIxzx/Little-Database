@@ -29,7 +29,7 @@ public class Client extends arc.net.Client implements NetListener {
         if (login == null || password == null) return;
         send(login + " " + password, res -> {
             if (res instanceof RequestSuccess req) Log.info("Successfully logged with login: @ and password: @", login, password);
-            else if (res instanceof RequestException req) Log.err("Could not to login: @", req.response);
+            else if (res instanceof RequestException req) Log.err("Could not to login.");
             else throw new RuntimeException("Unknown response!");
         });
     }

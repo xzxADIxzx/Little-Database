@@ -49,11 +49,11 @@ public class Client extends arc.net.Client implements NetListener {
         root.putAsync(name, "{}", response);
     }
 
-    public void remove(String name, Cons<Object> response) {
+    public void delete(String name, Cons<Object> response) {
         root.removeAsync(name, response);
     }
 
-    public void contains(String name, Cons<Object> response) {
+    public void exists(String name, Cons<Object> response) {
         root.containsAsync(name, response);
     }
 

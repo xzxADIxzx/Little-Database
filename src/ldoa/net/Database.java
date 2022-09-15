@@ -70,9 +70,11 @@ public class Database {
                         String[] args = command[1].split(" ", 2);
 
                         if (args.length == 1) return new RequestException(connection, "Too few arguments!");
-                        else {
-                            json.put(args[0], args[1]); // TODO parse value type through Json
+                        else try {
+                            json.put(args[0], Json.readAs(args[1]));
                             return new RequestSuccess(connection, args[1]);
+                        } catch (RuntimeException error) { // unknown field type
+                            return new RequestException(connection, error.getMessage());
                         }
                     } else return new RequestException(connection, "Can not put value to non-json object!");
                 }
@@ -88,6 +90,6 @@ public class Database {
     }
 
     private void write(Fi file, Json json) {
-        file.writeString(json.write(JsonStyle.standard));
+        file.writeString(json.write(JsonStyle.compact));
     }
 }

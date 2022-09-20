@@ -61,7 +61,7 @@ public class Database {
                         String[] args = command[1].split(" ", 2);
                         context = json.get(args[0]);
 
-                        if (args.length == 1) return new RequestSuccess(connection, context == null ? null : context.toString());
+                        if (args.length == 1) return new RequestSuccess(connection, context == null ? null : Json.write(context, JsonStyle.standard));
                         else return execute(connection, args[1]);
                     } else return new RequestException(connection, "Can not get value from non-json object!");
                 }

@@ -45,7 +45,7 @@ public class JsonShell { // TODO handler success/error response
 
     /** Works like {@link #put(String, Object)} but doesn't stop the thread. */
     public void putAsync(String key, Object value, Cons<Object> response) {
-        client.send(path + " put " + key, response);
+        client.send(path + " put " + key + " " + value, response);
     }
 
     /** Remove a value from json, which is represented by this {@link JsonShell}, by a key. */

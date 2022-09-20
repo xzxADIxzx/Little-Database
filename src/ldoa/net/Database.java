@@ -78,6 +78,12 @@ public class Database {
                         }
                     } else return new RequestException(connection, "Can not put value to non-json object!");
                 }
+                case "remove" -> {
+                    if (context instanceof Json json) {
+                        json.remove(command[1]);
+                        return new RequestSuccess(connection, null); // TODO return old value
+                    } else return new RequestException(connection, "Can not remove value from non-json object!");
+                }
                 default -> {
                     return new RequestException(connection, "Invalid LDR!");
                 }

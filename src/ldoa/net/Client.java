@@ -14,6 +14,8 @@ public class Client extends arc.net.Client implements NetListener {
 
     /** Represents folder and exists to work with database files. */
     public final JsonShell root = new JsonShell("root");
+
+    /** Contains all requests callbacks by their id. */
     public final IntMap<Cons<Object>> responses = new IntMap<>();
 
     public Client() {
@@ -21,6 +23,7 @@ public class Client extends arc.net.Client implements NetListener {
         addListener(this);
     }
 
+    /** Sends LDR to server and returns a {@link ResponseMessage}. */
     public void send(String request, Cons<Object> response) {
         sendTCP(request);
         responses.put(ResponseMessage.id++, response);

@@ -32,7 +32,7 @@ public class JsonShell { // TODO handler success/error response
         return Json.readAs(getResponse());
     }
 
-    /** Works like {@link #get(String)} but doesn't stop the thread. */
+    /** Works like {@link #get(String)} but doesn't stop the thread and returns a {@link ResponseMessage}. */
     public void getAsync(String key, Cons<Object> response) {
         client.send(path + " get " + key, response);
     }
@@ -44,7 +44,7 @@ public class JsonShell { // TODO handler success/error response
         return getResponse();
     }
 
-    /** Works like {@link #put(String, Object)} but doesn't stop the thread. */
+    /** Works like {@link #put(String, Object)} but doesn't stop the thread and returns a {@link ResponseMessage}. */
     public void putAsync(String key, Object value, Cons<Object> response) {
         client.send(path + " put " + key + " " + value, response);
     }
@@ -56,7 +56,7 @@ public class JsonShell { // TODO handler success/error response
         return getResponse();
     }
 
-    /** Works like {@link #remove(String)} but doesn't stop the thread. */
+    /** Works like {@link #remove(String)} but doesn't stop the thread and returns a {@link ResponseMessage}. */
     public void removeAsync(String key, Cons<Object> response) {
         client.send(path + " remove " + key, response);
     }
@@ -68,7 +68,7 @@ public class JsonShell { // TODO handler success/error response
         return Boolean.valueOf(getResponse());
     }
 
-    /** Works like {@link #contains(String key)} but doesn't stop the thread. */
+    /** Works like {@link #contains(String key)} but doesn't stop the thread and returns a {@link ResponseMessage}. */
     public void containsAsync(String key, Cons<Object> response) {
         client.send(path + " contains " + key, response);
     }

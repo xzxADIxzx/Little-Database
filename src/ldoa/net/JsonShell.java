@@ -3,6 +3,7 @@ package ldoa.net;
 import arc.func.Cons;
 import arc.util.Time;
 import ldoa.net.ResponseMessage.*;
+import useful.Json;
 
 import static ldoa.Main.*;
 
@@ -28,7 +29,7 @@ public class JsonShell { // TODO handler success/error response
     public Object get(String key) {
         getAsync(key, res -> response = res);
         waitUntilResponse();
-        return response;
+        return Json.readAs(getResponse());
     }
 
     /** Works like {@link #get(String)} but doesn't stop the thread. */
@@ -40,7 +41,7 @@ public class JsonShell { // TODO handler success/error response
     public Object put(String key, Object value) {
         putAsync(key, value, res -> response = res);
         waitUntilResponse();
-        return response;
+        return getResponse();
     }
 
     /** Works like {@link #put(String, Object)} but doesn't stop the thread. */
@@ -52,7 +53,7 @@ public class JsonShell { // TODO handler success/error response
     public Object remove(String key) {
         removeAsync(key, res -> response = res);
         waitUntilResponse();
-        return response;
+        return getResponse();
     }
 
     /** Works like {@link #remove(String)} but doesn't stop the thread. */
@@ -64,9 +65,7 @@ public class JsonShell { // TODO handler success/error response
     public boolean contains(String key) {
         containsAsync(key, res -> response = res);
         waitUntilResponse();
-        if (response instanceof RequestSuccess req) return Boolean.valueOf(req.response);
-        if (response instanceof RequestException) throw new RuntimeException("Exception occurred while processing your request: " + response);
-        throw new RuntimeException("Unknown response!"); // now it's rly impossible as unknown messages are handled by packet serializer
+        return Boolean.valueOf(getResponse());
     }
 
     /** Works like {@link #contains(String key)} but doesn't stop the thread. */
@@ -86,5 +85,11 @@ public class JsonShell { // TODO handler success/error response
             if (Time.timeSinceMillis(mark) > maxWaitDuration)
                 throw new RuntimeException("Timeout waiting for server response.");
         }
+    }
+
+    private String getResponse() {
+        if (response instanceof RequestSuccess req) return req.response;
+        if (response instanceof RequestException) throw new RuntimeException("Exception occurred while processing your request: " + response);
+        throw new RuntimeException("Unknown response!"); // now it's rly impossible as unknown messages are handled by packet serializer
     }
 }

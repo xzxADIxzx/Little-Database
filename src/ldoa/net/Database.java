@@ -84,6 +84,12 @@ public class Database {
                         return new RequestSuccess(connection, null); // TODO return old value
                     } else return new RequestException(connection, "Can not remove value from non-json object!");
                 }
+                case "contains" -> {
+                    if (context instanceof Json json)
+                        return new RequestSuccess(connection, String.valueOf(json.contains(command[1])));
+                    else
+                        return new RequestException(connection, "Can not get value from non-json object!");
+                }
                 default -> {
                     return new RequestException(connection, "Invalid LDR!");
                 }

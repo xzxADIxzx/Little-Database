@@ -5,6 +5,7 @@ import arc.net.Connection;
 import arc.net.NetListener;
 import arc.struct.IntMap;
 import arc.util.Log;
+import ldoa.Control;
 import ldoa.net.ResponseMessage.*;
 
 import static ldoa.Main.*;
@@ -25,6 +26,7 @@ public class Client extends arc.net.Client implements NetListener {
         responses.put(ResponseMessage.id++, response);
     }
 
+    /** For internal use in {@link Control}. */
     public void authorize() {
         if (login == null || password == null) return;
         send(login + " " + password, res -> {

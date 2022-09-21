@@ -64,7 +64,7 @@ public class JsonShell { // TODO handler success/error response
     public boolean contains(String key) {
         containsAsync(key, res -> response = res);
         waitUntilResponse();
-        if (response instanceof RequestSuccess) return Boolean.valueOf((String) response);
+        if (response instanceof RequestSuccess req) return Boolean.valueOf(req.response);
         if (response instanceof RequestException) throw new RuntimeException("Exception occurred while processing your request: " + response);
         throw new RuntimeException("Unknown response!"); // now it's rly impossible as unknown messages are handled by packet serializer
     }

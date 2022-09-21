@@ -76,11 +76,15 @@ public class JsonShell { // TODO handler success/error response
 
     private void waitUntilResponse() {
         response = null;
+
         long mark = Time.millis();
         while (response == null) {
+            try {
+                Thread.sleep(1); // idk why but it doesn't work without sleep
+            } catch (Throwable ignored) {}
+
             if (Time.timeSinceMillis(mark) > maxWaitDuration)
                 throw new RuntimeException("Timeout waiting for server response.");
-            break; // temp
         }
     }
 }

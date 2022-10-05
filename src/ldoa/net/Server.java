@@ -56,7 +56,7 @@ public class Server extends arc.net.Server implements NetListener {
 
     public void received(Connection connection, Object object) {
         if (object instanceof String message) {
-            if (connections.authorized(connection)) connection.sendTCP(database.execute(connection, message));
+            if (connections.authorized(connection)) database.execute(connection, message).send(connection);
             else {
                 String[] args = message.split(" ");
                 if (args[0].equals(login) && args[1].equals(password)) {

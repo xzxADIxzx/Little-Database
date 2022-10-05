@@ -16,32 +16,28 @@ public class Database {
 
     public static final Object requestComplete = new Object();
     public static final Seq<Action> actions = Seq.with(
-            new Action("get", 1, true, (context, args) -> {
-                if (context instanceof Json json) {
-                    return json.get(args[0]);
-                } else return new RequestException("Can not get value from non-json object!");
-            }),
-            new Action("put", 2, false, (context, args) -> {
-                if (context instanceof Json json) {
-                    try {
-                        Object object = Json.readAs(args[1]);
-                        json.put(args[0], object);
-                        return object;
-                    } catch (RuntimeException error) { // unknown field type
-                        return new RequestException(error.getMessage());
-                    }
-                } else return new RequestException("Can not put value to non-json object!");
-            }),
-            new Action("remove", 1, false, (context, args) -> {
-                if (context instanceof Json json) {
-                    json.remove(args[0]);
-                    return null; // TODO return old value
-                } else return new RequestException("Can not remove value from non-json object!");
-            }),
-            new Action("contains", 1, false, (context, args) -> {
-                if (context instanceof Json json) return json.contains(args[0]);
-                return new RequestException("Can not get value from non-json object!");
-            })
+            new Action("get", 1, true, (json, args) -> {
+                return json.get(args[0]);
+            }, "Can not get value from non-json object!"),
+
+            new Action("put", 2, false, (json, args) -> {
+                try {
+                    Object object = Json.readAs(args[1]);
+                    json.put(args[0], object);
+                    return object;
+                } catch (RuntimeException error) { // unknown field type
+                    return new RequestException(error.getMessage());
+                }
+            }, "Can not put value to non-json object!"),
+
+            new Action("remove", 1, false, (json, args) -> {
+                json.remove(args[0]);
+                return null; // TODO return old value
+            }, "Can not remove value from non-json object!"),
+
+            new Action("contains", 1, false, (json, args) -> {
+                return json.contains(args[0]);
+            }, "Can not check value existence in non-json object!")
     );
 
     public final ObjectMap<String, Json> jsons = new ObjectMap<>();
@@ -112,12 +108,14 @@ public class Database {
         file.writeString(json.write(JsonStyle.compact));
     }
 
-    public record Action(String name, int argsAmount, boolean continuable, Func2<Object, String[], Object> runner) {
+    public record Action(String name, int argsAmount, boolean continuable, Func2<Json, String[], Object> runner, String exception) {
 
         public Object execute(Object context, String args) {
-            String[] splitted = args.split(" ", continuable ? argsAmount + 1 : argsAmount);
-            if (splitted.length < argsAmount) return new RequestException("Too few arguments!");
-            return runner.get(context, splitted);
+            if (context instanceof Json json) {
+                String[] splitted = args.split(" ", continuable ? argsAmount + 1 : argsAmount);
+                if (splitted.length < argsAmount) return new RequestException("Too few arguments!");
+                return runner.get(json, splitted);
+            } else return new RequestException(exception);
         }
     }
 }

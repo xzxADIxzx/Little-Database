@@ -64,7 +64,7 @@ public class Server extends arc.net.Server implements NetListener {
                     Log.info("Received correct login and password from connection @.", connection.getID());
                 } else {
                     connections.disconnect(connection, "login or password is incorrect");
-                    connection.sendTCP(new RequestException(connection, "Goodbye :3"));
+                    new RequestException("Goodbye :3").send(connection);
                 }
             }
         }
@@ -80,7 +80,7 @@ public class Server extends arc.net.Server implements NetListener {
 
         public void authorize(Connection connection) {
             authorized.add(connection);
-            connection.sendTCP(new RequestSuccess(connection, "Hi :3"));
+            new RequestSuccess("Hi :3").send(connection);
         }
 
         public boolean authorized(Connection connection) { // it makes no sense to check authorization if the database is not locked

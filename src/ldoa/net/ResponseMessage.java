@@ -14,10 +14,13 @@ public abstract class ResponseMessage {
 
     public ResponseMessage() {} // for packet serializer
 
-    public ResponseMessage(Connection connection, String response) {
-        if (connection != null) // request can be created on the server side
-            this.requestID = ids.increment(connection.getID());
+    public ResponseMessage(String response) {
         this.response = response;
+    }
+
+    public void send(Connection connection) {
+        this.requestID = ids.increment(connection.getID());
+        connection.sendTCP(this);
     }
 
     @Override
@@ -29,8 +32,8 @@ public abstract class ResponseMessage {
     public static class RequestSuccess extends ResponseMessage {
         public RequestSuccess() {}
 
-        public RequestSuccess(Connection connection, String response) {
-            super(connection, response);
+        public RequestSuccess(String response) {
+            super(response);
         }
     }
 
@@ -38,8 +41,8 @@ public abstract class ResponseMessage {
     public static class RequestException extends ResponseMessage {
         public RequestException() {}
 
-        public RequestException(Connection connection, String response) {
-            super(connection, response);
+        public RequestException(String response) {
+            super(response);
         }
     }
 }

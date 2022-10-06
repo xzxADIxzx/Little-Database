@@ -119,7 +119,7 @@ public class Control implements ApplicationListener {
             if (thread == null) Log.err("No server/client launched yet.");
             else {
                 if (thread.getName().equals("Net Client")) client.send(args[0], this::handleResponse);
-                else handleResponse(server.database.execute(null, args[0]));
+                else handleResponse(server.database.executeResponse(null, args[0]));
             }
         });
 

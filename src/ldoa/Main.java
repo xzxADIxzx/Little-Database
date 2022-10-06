@@ -22,7 +22,7 @@ public class Main {
 
     public static void main(String[] args) {
         ArcNet.errorHandler = Log::err;
-        Log.logger = (level, text) -> {
+        Log.logger = (level, text) -> { // this is how fashionable i am
             String result = Log.format("&lk&fb[" + dateTime.format(LocalDateTime.now()) + "]&fr " + tags[level.ordinal()] + " " + text + "&fr");
             System.out.println(result);
         };

@@ -1,7 +1,7 @@
 package ldoa.net;
 
 import arc.files.Fi;
-import arc.func.Func2;
+import arc.func.*;
 import arc.net.Connection;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
@@ -37,7 +37,11 @@ public class Database {
 
             new Action("contains", 1, false, (json, args) -> {
                 return json.contains(args[0]);
-            }, "Can not check value existence in non-json object!")
+            }, "Can not check value existence in non-json object!"),
+
+            new Action("each", 0, true, (json, args) -> {
+                return new EachAction(json);
+            }, "Can not iterate over values in non-json object!")
     );
 
     public final ObjectMap<String, Json> jsons = new ObjectMap<>();
@@ -67,7 +71,15 @@ public class Database {
         Log.info("Saved @ database files to @.", jsons.size, root.absolutePath());
     }
 
-    public ResponseMessage execute(Connection connection, String request) {
+    public ResponseMessage executeResponse(Connection connection, String request) {
+        Object response = execute(connection, request);
+        if (response instanceof ResponseMessage message) return message; // exception
+
+        // pretty print for response
+        return new RequestSuccess(response == null ? null : Json.write(response, JsonStyle.standard));
+    }
+
+    public Object execute(Connection connection, String request) {
         if (context == requestComplete) { // method called from outside
             String[] file = request.split(" ", 2);
             context = jsons.get(file[0]); // ldr start with filename
@@ -88,15 +100,20 @@ public class Database {
             if (action == null) return new RequestException("Action not found!");
 
             context = action.execute(context, args);
-            if (context instanceof ResponseMessage message) return message;
+            if (context instanceof ResponseMessage || !action.continuable) return context; // exception or final result
 
-            if (action.continuable) { // request may continue: get a get b or add a div b
-                String[] splitted = args.split(" ", action.argsAmount + 1);
-                if (splitted.length > action.argsAmount) return execute(connection, splitted[splitted.length - 1]);
-            }
+            String[] splitted = args.split(" ", action.argsAmount + 1);
+            if (splitted.length <= action.argsAmount) return context;
 
-            // pretty print for response
-            return new RequestSuccess(context == null ? null : Json.write(context, JsonStyle.standard));
+            // request continuation: get a get b or add a div b
+            String next = splitted[splitted.length - 1];
+
+            if (context instanceof EachAction each) // special case for each action
+                return each.execute(item -> {
+                    context = item;
+                    return execute(connection, next);
+                });
+            else return execute(connection, next); // any other action
         }
     }
 
@@ -116,6 +133,18 @@ public class Database {
                 if (splitted.length < argsAmount) return new RequestException("Too few arguments!");
                 return runner.get(json, splitted);
             } else return new RequestException(exception);
+        }
+    }
+
+    public record EachAction(Json json) {
+
+        public Json execute(Func<Object, Object> executor) {
+            Json result = new Json();
+            json.each((key, value) -> { // mapping values through an executor
+                Object mapped = executor.get(value);
+                result.put(key, mapped instanceof ResponseMessage message ? message.response : mapped);
+            });
+            return result;
         }
     }
 }

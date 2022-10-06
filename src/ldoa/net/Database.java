@@ -102,11 +102,11 @@ public class Database {
             context = action.execute(context, args);
             if (context instanceof ResponseMessage || !action.continuable) return context; // exception or final result
 
-            String[] splitted = args.split(" ", action.argsAmount + 1);
-            if (splitted.length <= action.argsAmount) return context;
+            String[] split = args.split(" ", action.argsAmount + 1);
+            if (split.length <= action.argsAmount) return context;
 
             // request continuation: get a get b or add a div b
-            String next = splitted[splitted.length - 1];
+            String next = split[split.length - 1];
 
             if (context instanceof EachAction each) // special case for each action
                 return each.execute(item -> {
@@ -129,9 +129,9 @@ public class Database {
 
         public Object execute(Object context, String args) {
             if (context instanceof Json json) {
-                String[] splitted = args.split(" ", continuable ? argsAmount + 1 : argsAmount);
-                if (splitted.length < argsAmount) return new RequestException("Too few arguments!");
-                return runner.get(json, splitted);
+                String[] split = args.split(" ", continuable ? argsAmount + 1 : argsAmount);
+                if (split.length < argsAmount) return new RequestException("Too few arguments!");
+                return runner.get(json, split);
             } else return new RequestException(exception);
         }
     }

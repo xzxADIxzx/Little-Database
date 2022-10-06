@@ -45,4 +45,8 @@ public abstract class ResponseMessage {
             super(response);
         }
     }
+
+    public static interface ResponseCons {
+        void get(ResponseMessage message);
+    }
 }

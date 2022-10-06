@@ -7,6 +7,7 @@ import arc.net.NetListener;
 import arc.util.CommandHandler;
 import arc.util.CommandHandler.CommandResponse;
 import arc.util.CommandHandler.ResponseType;
+import ldoa.net.ResponseMessage;
 import ldoa.net.ResponseMessage.*;
 import arc.util.Log;
 import arc.util.Strings;
@@ -154,7 +155,7 @@ public class Control implements ApplicationListener {
         }
     }
 
-    private void handleResponse(Object response) {
+    private void handleResponse(ResponseMessage response) {
         if (response instanceof RequestSuccess req) Log.info(req.response);
         if (response instanceof RequestException req) Log.err(req.response);
     }

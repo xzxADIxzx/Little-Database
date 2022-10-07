@@ -13,8 +13,8 @@ repositories {
 }
 
 ext {
-    arcVersion = 'v138' // the build number that this plugin is made for
-    jsonVersion = '6dbabf69fa'
+    arcVersion = 'v139' // the build number that this plugin is made for
+    jsonVersion = 'c533be7d3a'
 }
 
 dependencies {

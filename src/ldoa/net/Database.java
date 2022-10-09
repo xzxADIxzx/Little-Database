@@ -39,8 +39,14 @@ public class Database {
                 return json.contains(args[0]);
             }, "Can not check value existence in non-json object!"),
 
-            new JsonAction("each", 0, true, (json, args) -> {
-                return new EachAction(json);
+            new JsonAction("each", 1, false, (database, json, args) -> {
+                Json result = new Json();
+                json.each((key, value) -> { // mapping values through an execute
+                    database.context = value;
+                    Object mapped = database.execute(null, args[0]);
+                    result.put(key, mapped instanceof ResponseMessage message ? message.response : mapped);
+                });
+                return result;
             }, "Can not iterate over values in non-json object!")
     );
 
@@ -105,15 +111,8 @@ public class Database {
             String[] split = args.split(" ", action.argsAmount + 1);
             if (split.length <= action.argsAmount) return context;
 
-            // request continuation: get a get b or add a div b
-            String next = split[split.length - 1];
-
-            if (context instanceof EachAction each) // special case for each action
-                return each.execute(item -> {
-                    context = item;
-                    return execute(connection, next);
-                });
-            else return execute(connection, next); // any other action
+            String next = split[split.length - 1]; // request continuation: get a get b or add a div b
+            return execute(connection, next);
         }
     }
 
@@ -140,37 +139,30 @@ public class Database {
         public Object run(Database database, String args) {
             String[] split = args.split(" ", continuable ? argsAmount + 1 : argsAmount);
             if (split.length < argsAmount) return new RequestException("Too few arguments!");
-            return run(database.context, split);
+            return run(database, split);
         }
 
-        public abstract Object run(Object context, String[] args);
+        protected abstract Object run(Database database, String[] args);
     }
 
     public static class JsonAction extends Action {
 
-        private Func2<Json, String[], Object> runner;
+        private Func3<Database, Json, String[], Object> runner;
         private String exception;
 
-        public JsonAction(String name, int argsAmount, boolean continuable, Func2<Json, String[], Object> runner, String exception) {
+        public JsonAction(String name, int argsAmount, boolean continuable, Func3<Database, Json, String[], Object> runner, String exception) {
             super(name, argsAmount, continuable);
             this.runner = runner;
             this.exception = exception;
         }
 
-        public Object run(Object context, String[] args) {
-            return context instanceof Json json ? runner.get(json, args) : new RequestException(exception);
+        public JsonAction(String name, int argsAmount, boolean continuable, Func2<Json, String[], Object> runner, String exception){
+            this(name, argsAmount, continuable, (database, json, args) -> runner.get(json, args), exception);
         }
-    }
 
-    public record EachAction(Json json) {
-
-        public Json execute(Func<Object, Object> executor) {
-            Json result = new Json();
-            json.each((key, value) -> { // mapping values through an executor
-                Object mapped = executor.get(value);
-                result.put(key, mapped instanceof ResponseMessage message ? message.response : mapped);
-            });
-            return result;
+        @Override
+        protected Object run(Database database, String[] args) {
+            return database.context instanceof Json json ? runner.get(database, json, args) : new RequestException(exception);
         }
     }
 }

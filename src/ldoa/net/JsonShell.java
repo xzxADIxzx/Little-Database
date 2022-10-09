@@ -7,7 +7,7 @@ import useful.Json;
 import static ldoa.Main.*;
 
 /** Represents json but does not contain any data, everything is obtained through requests to the database server. */
-public class JsonShell { // TODO handler success/error response
+public class JsonShell {
 
     /** Maximum time to wait for server response. */
     public static final long maxWaitDuration = 5000l; // 5 sec
@@ -40,7 +40,7 @@ public class JsonShell { // TODO handler success/error response
     public Object put(String key, Object value) {
         putAsync(key, value, res -> response = res);
         waitUntilResponse();
-        return getResponse();
+        return Json.readAs(getResponse());
     }
 
     /** Works like {@link #put(String, Object)} but doesn't stop the thread and returns a {@link ResponseMessage}. */

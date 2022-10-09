@@ -16,11 +16,11 @@ public class Database {
 
     public static final Object requestComplete = new Object();
     public static final Seq<Action> actions = Seq.with(
-            new Action("get", 1, true, (json, args) -> {
+            new JsonAction("get", 1, true, (json, args) -> {
                 return json.get(args[0]);
             }, "Can not get value from non-json object!"),
 
-            new Action("put", 2, false, (json, args) -> {
+            new JsonAction("put", 2, false, (json, args) -> {
                 try {
                     Object object = Json.readAs(args[1]);
                     json.put(args[0], object);
@@ -30,16 +30,16 @@ public class Database {
                 }
             }, "Can not put value to non-json object!"),
 
-            new Action("remove", 1, false, (json, args) -> {
+            new JsonAction("remove", 1, false, (json, args) -> {
                 json.remove(args[0]);
                 return null; // TODO return old value
             }, "Can not remove value from non-json object!"),
 
-            new Action("contains", 1, false, (json, args) -> {
+            new JsonAction("contains", 1, false, (json, args) -> {
                 return json.contains(args[0]);
             }, "Can not check value existence in non-json object!"),
 
-            new Action("each", 0, true, (json, args) -> {
+            new JsonAction("each", 0, true, (json, args) -> {
                 return new EachAction(json);
             }, "Can not iterate over values in non-json object!")
     );
@@ -99,7 +99,7 @@ public class Database {
             Action action = actions.find(cmd -> cmd.name.equals(name));
             if (action == null) return new RequestException("Action not found!");
 
-            context = action.execute(context, args);
+            context = action.run(this, args);
             if (context instanceof ResponseMessage || !action.continuable) return context; // exception or final result
 
             String[] split = args.split(" ", action.argsAmount + 1);
@@ -125,14 +125,40 @@ public class Database {
         file.writeString(json.write(JsonStyle.compact));
     }
 
-    public record Action(String name, int argsAmount, boolean continuable, Func2<Json, String[], Object> runner, String exception) {
+    public static abstract class Action {
 
-        public Object execute(Object context, String args) {
-            if (context instanceof Json json) {
-                String[] split = args.split(" ", continuable ? argsAmount + 1 : argsAmount);
-                if (split.length < argsAmount) return new RequestException("Too few arguments!");
-                return runner.get(json, split);
-            } else return new RequestException(exception);
+        public String name;
+        public int argsAmount;
+        public boolean continuable;
+
+        public Action(String name, int argsAmount, boolean continuable) {
+            this.name = name;
+            this.argsAmount = argsAmount;
+            this.continuable = continuable;
+        }
+
+        public Object run(Database database, String args) {
+            String[] split = args.split(" ", continuable ? argsAmount + 1 : argsAmount);
+            if (split.length < argsAmount) return new RequestException("Too few arguments!");
+            return run(database.context, split);
+        }
+
+        public abstract Object run(Object context, String[] args);
+    }
+
+    public static class JsonAction extends Action {
+
+        private Func2<Json, String[], Object> runner;
+        private String exception;
+
+        public JsonAction(String name, int argsAmount, boolean continuable, Func2<Json, String[], Object> runner, String exception) {
+            super(name, argsAmount, continuable);
+            this.runner = runner;
+            this.exception = exception;
+        }
+
+        public Object run(Object context, String[] args) {
+            return context instanceof Json json ? runner.get(json, args) : new RequestException(exception);
         }
     }
 

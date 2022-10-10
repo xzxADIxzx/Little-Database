@@ -16,7 +16,8 @@ public class Database {
 
     public static final Object requestComplete = new Object();
     public static final Seq<Action> actions = Seq.with(
-            new JsonAction("get", 1, true, (json, args) -> {
+            new JsonAction("get", 1, true, (database, json, args) -> {
+                database.cache = new GetCache(json, args[0]);
                 return json.get(args[0]);
             }, "Can not get value from non-json object!"),
 
@@ -52,6 +53,9 @@ public class Database {
 
     public final ObjectMap<String, Json> jsons = new ObjectMap<>();
     public Object context = requestComplete;
+
+    /** Specially for num actions as they auto-save the value after the operation is done. */
+    protected GetCache cache;
 
     public void load(String from) {
         jsons.clear();
@@ -156,13 +160,20 @@ public class Database {
             this.exception = exception;
         }
 
-        public JsonAction(String name, int argsAmount, boolean continuable, Func2<Json, String[], Object> runner, String exception){
+        public JsonAction(String name, int argsAmount, boolean continuable, Func2<Json, String[], Object> runner, String exception) {
             this(name, argsAmount, continuable, (database, json, args) -> runner.get(json, args), exception);
         }
 
         @Override
         protected Object run(Database database, String[] args) {
             return database.context instanceof Json json ? runner.get(database, json, args) : new RequestException(exception);
+        }
+    }
+
+    public static record GetCache(Json from, String key) {
+
+        public void put(Object value) {
+            from.put(key, value);
         }
     }
 }

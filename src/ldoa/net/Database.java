@@ -48,13 +48,17 @@ public class Database {
                     result.put(key, mapped instanceof ResponseMessage message ? message.response : mapped);
                 });
                 return result;
-            }, "Can not iterate over values in non-json object!")
-    );
+            }, "Can not iterate over values in non-json object!"),
+
+            new MathAction("add", 1, true, (number, args) -> number + Float.valueOf(args[0])),
+            new MathAction("sub", 1, true, (number, args) -> number - Float.valueOf(args[0])),
+            new MathAction("mul", 1, true, (number, args) -> number * Float.valueOf(args[0])),
+            new MathAction("div", 1, true, (number, args) -> number / Float.valueOf(args[0])));
 
     public final ObjectMap<String, Json> jsons = new ObjectMap<>();
     public Object context = requestComplete;
 
-    /** Specially for num actions as they auto-save the value after the operation is done. */
+    /** Specially for math actions as they auto-save the value after the operation is done. */
     protected GetCache cache;
 
     public void load(String from) {
@@ -167,6 +171,32 @@ public class Database {
         @Override
         protected Object run(Database database, String[] args) {
             return database.context instanceof Json json ? runner.get(database, json, args) : new RequestException(exception);
+        }
+    }
+
+    public static class MathAction extends Action {
+
+        private Func2<Float, String[], Float> runner;
+        private String exception;
+
+        public MathAction(String name, int argsAmount, boolean continuable, Func2<Float, String[], Float> runner) {
+            super(name, argsAmount, continuable);
+            this.runner = runner;
+            this.exception = "Can not perform a mathematical operation on a non-numeric value!";
+        }
+
+        @Override
+        protected Object run(Database database, String[] args) {
+            if (database.context instanceof Number number) {
+                Float performed = runner.get(number.floatValue(), args);
+
+                Object result; // parse the value back to its original type
+                if (database.context instanceof Integer) result = performed.intValue();
+                else result = performed; // if needed because java sucks
+
+                database.cache.put(result); // change value to new
+                return result;
+            } else return new RequestException(exception);
         }
     }
 

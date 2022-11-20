@@ -1,8 +1,11 @@
 package ldoa.net;
 
+import arc.func.Cons;
+import arc.func.Func;
 import arc.util.Time;
 import ldoa.net.ResponseMessage.*;
 import useful.Json;
+import useful.Json.JsonStyle;
 
 import static ldoa.Main.*;
 
@@ -13,7 +16,6 @@ public class JsonShell {
     public static final long maxWaitDuration = 5000l; // 5 sec
 
     public String path;
-    public Object response;
 
     public JsonShell(String path) {
         this.path = path;
@@ -25,70 +27,86 @@ public class JsonShell {
     }
 
     /** Returns a value by a key in json which is represented by this {@link JsonShell}. */
-    public Object get(String key) {
-        getAsync(key, res -> response = res);
-        waitUntilResponse();
-        return Json.readAs(getResponse());
-    }
-
-    /** Works like {@link #get(String)} but doesn't stop the thread and returns a {@link ResponseMessage}. */
-    public void getAsync(String key, ResponseCons response) {
-        client.send(path + " get " + key, response);
+    public Response<Object> get(String key) {
+        return new Response<>(path + " get " + key, Json::readAs);
     }
 
     /** Puts a value to json, which is represented by this {@link JsonShell}, by a key. */
-    public Object put(String key, Object value) {
-        putAsync(key, value, res -> response = res);
-        waitUntilResponse();
-        return Json.readAs(getResponse());
+    public Response<Object> put(String key, Object value) {
+        return new Response<>(path + " put " + key + " " + Json.write(value, JsonStyle.compact), Json::readAs);
     }
 
-    /** Works like {@link #put(String, Object)} but doesn't stop the thread and returns a {@link ResponseMessage}. */
-    public void putAsync(String key, Object value, ResponseCons response) {
-        client.send(path + " put " + key + " " + value, response);
-    }
-
-    /** Remove a value from json, which is represented by this {@link JsonShell}, by a key. */
-    public Object remove(String key) {
-        removeAsync(key, res -> response = res);
-        waitUntilResponse();
-        return getResponse();
-    }
-
-    /** Works like {@link #remove(String)} but doesn't stop the thread and returns a {@link ResponseMessage}. */
-    public void removeAsync(String key, ResponseCons response) {
-        client.send(path + " remove " + key, response);
+    /** Removes a value from json, which is represented by this {@link JsonShell}, by a key. */
+    public Response<Object> remove(String key) {
+        return new Response<>(path + " remove " + key, Json::readAs);
     }
 
     /** Returns whether the json, which is represented by this {@link JsonShell}, contains a key. */
-    public boolean contains(String key) {
-        containsAsync(key, res -> response = res);
-        waitUntilResponse();
-        return Boolean.valueOf(getResponse());
+    public Response<Boolean> contains(String key) {
+        return new Response<>(path + " contains " + key, Boolean::valueOf);
     }
 
-    /** Works like {@link #contains(String key)} but doesn't stop the thread and returns a {@link ResponseMessage}. */
-    public void containsAsync(String key, ResponseCons response) {
-        client.send(path + " contains " + key, response);
+    /** Removes all values from json which is represented by this {@link JsonShell}. */
+    public Response<Object> clear(String key) {
+        return new Response<>(path + " clear", Json::readAs);
     }
 
-    private void waitUntilResponse() {
-        response = null;
+    /** Request wrapper used to process an asynchronous request or block a thread until a response is received. */
+    public static class Response<T> {
 
-        long mark = Time.millis();
-        while (response == null) {
-            try {
-                Thread.sleep(1); // idk why but it doesn't work without sleep
-            } catch (Throwable ignored) {}
+        public String request;
+        public Object response;
 
-            if (Time.timeSinceMillis(mark) > maxWaitDuration)
-                throw new RuntimeException("Timeout waiting for server response.");
+        public Func<String, T> parser;
+
+        public Response(String request, Func<String, T> parser) {
+            this.request = request;
+            this.parser = parser;
+        }
+
+        /** Works like {@link #send(Cons)} but returns {@link ResponseMessage}. */
+        public void cons(ResponseCons response) {
+            client.send(request, response);
+        }
+
+        /** Works like {@link #block()} but doesn't stop the thread. */
+        public void send(Cons<T> response) throws ShellException {
+            client.send(request, res -> response.get(parser.get(getResponse())));
+        }
+
+        /** Returns the result of the request, or throws an exception if the result is instance of {@link RequestException}. */
+        public T block() throws ShellException {
+            client.send(request, res -> response = res);
+            waitUntilResponse();
+            return parser.get(getResponse());
+        }
+
+        private void waitUntilResponse() throws ShellException {
+            response = null;
+
+            long mark = Time.millis();
+            while (response == null) {
+                try {
+                    Thread.sleep(1); // idk why but it doesn't work without sleep
+                } catch (Throwable ignored) {}
+
+                if (Time.timeSinceMillis(mark) > maxWaitDuration)
+                    throw new ShellException("Timeout waiting for server response.");
+            }
+        }
+
+        private String getResponse() throws ShellException {
+            if (response instanceof RequestSuccess req) return req.response;
+            if (response instanceof RequestException req) throw new ShellException("Exception occurred while processing your request: " + req.response);
+            return null; // now it's rly impossible as unknown messages are handled by packet serializer
         }
     }
 
-    private String getResponse() {
-        if (response instanceof RequestSuccess req) return req.response;
-        if (response instanceof RequestException) throw new RuntimeException("Exception occurred while processing your request: " + response);
-        throw new RuntimeException("Unknown response!"); // now it's rly impossible as unknown messages are handled by packet serializer
+    /** Database request exception wrapper. */
+    public static class ShellException extends RuntimeException {
+
+        public ShellException(String message) {
+            super(message);
+        }
     }
 }

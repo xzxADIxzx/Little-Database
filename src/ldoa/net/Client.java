@@ -6,6 +6,7 @@ import arc.struct.IntMap;
 import arc.util.Log;
 import ldoa.Control;
 import ldoa.net.ResponseMessage.*;
+import useful.Json;
 
 import static ldoa.Main.*;
 
@@ -50,15 +51,15 @@ public class Client extends arc.net.Client implements NetListener {
     }
 
     public void create(String name, ResponseCons response) {
-        root.putAsync(name, "{}", response);
+        root.put(name, new Json()).cons(response);
     }
 
     public void delete(String name, ResponseCons response) {
-        root.removeAsync(name, response);
+        root.remove(name).cons(response);
     }
 
     public void exists(String name, ResponseCons response) {
-        root.containsAsync(name, response);
+        root.contains(name).cons(response);
     }
 
     // endregion

@@ -70,8 +70,11 @@ public class JsonShell {
         }
 
         /** Works like {@link #block()} but doesn't stop the thread. */
-        public void send(Cons<T> response) throws ShellException {
-            client.send(request, res -> response.get(parser.get(getResponse())));
+        public void send(Cons<T> cons) throws ShellException {
+            client.send(request, res -> {
+                response = res;
+                cons.get(parser.get(getResponse()));
+            });
         }
 
         /** Returns the result of the request, or throws an exception if the result is instance of {@link RequestException}. */

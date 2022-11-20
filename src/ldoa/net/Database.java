@@ -40,6 +40,11 @@ public class Database {
                 return json.contains(args[0]);
             }, "Can not check value existence in non-json object!"),
 
+            new JsonAction("clear", 0, false, (json, args) -> {
+                json.clear();
+                return null;
+            }, "Can not remove all values from non-json object!"),
+
             new JsonAction("each", 1, false, (database, json, args) -> {
                 Json result = new Json();
                 json.each((key, value) -> { // mapping values through an execute
